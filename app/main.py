@@ -6,7 +6,7 @@ from app.config.middleware.config import configure_middleware
 from app.config.handlers.config import configure_events
 
 # Router
-from app.api.v1.controllers.routers.main import index
+from app.api.v1.controllers.routers.main import index, memory, health, docs
 
 class BaseConfig:
     def __init__(self):
@@ -22,7 +22,10 @@ class BaseConfig:
         configure_events(self.app)
         
         # Register routers
+        self.app.include_router(health.router, tags=["Health Check"])
+        self.app.include_router(memory.router, tags=["Memory Usage"])
         self.app.include_router(index.router, tags=["Index"])
+        self.app.include_router(docs.router, tags=["Docs"])
                 
         return self.app
 

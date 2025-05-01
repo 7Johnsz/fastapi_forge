@@ -1,0 +1,21 @@
+[project]
+name = "api-project"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dotenv>=0.9.9",
+    "fastapi>=0.115.12",
+    "gunicorn>=23.0.0",
+    "httpx>=0.28.1",
+    "loguru>=0.7.3",
+    "orjson>=3.10.18",
+    "psutil>=7.0.0",
+    "pytest>=8.3.5",
+    "pytz>=2025.2",
+    "redis>=6.0.0",
+    "scalar-fastapi>=1.0.3",
+    "slowapi>=0.1.9",
+    "uvicorn>=0.34.2",
+]

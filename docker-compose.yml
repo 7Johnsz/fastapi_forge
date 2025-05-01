@@ -1,0 +1,29 @@
+services:
+  api:
+    container_name: template-api
+    build: .
+    restart: always
+    ports:
+      - ${PORT_NUMBER}:3008
+    networks:
+      - shared-network
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6380
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
+  redis:
+    container_name: template-redis
+    image: redis:alpine
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD} --port 6380
+    ports:
+      - "${REDIS_PORT}:6380" 
+    networks:
+      - shared-network
+  
+networks:
+  shared-network:
+    driver: bridge

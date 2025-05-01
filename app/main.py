@@ -6,7 +6,7 @@ from app.config.middleware.config import configure_middleware
 from app.config.handlers.config import configure_events
 
 # Router
-from app.v1.controllers.routers.main import index
+from app.api.v1.controllers.routers.main import index
 
 class BaseConfig:
     def __init__(self):

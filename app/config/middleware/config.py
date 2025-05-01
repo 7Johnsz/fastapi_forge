@@ -10,7 +10,7 @@ from slowapi.util import get_remote_address
 from slowapi import Limiter
 
 # Services
-from ...v1.service.webhook.config import webhook
+from ...api.v1.service.webhook.config import webhook
 
 # Utils
 import redis.asyncio as redis
@@ -29,7 +29,7 @@ limiter = Limiter(
 redis_pool = redis.ConnectionPool(
     host=redis_host, 
     password=redis_password,
-    port=int(redis_port),
+    port=redis_port,
     db=1,
     decode_responses=True
 )

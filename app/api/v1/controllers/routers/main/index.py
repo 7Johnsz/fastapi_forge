@@ -5,7 +5,7 @@ from fastapi import Request
 from ....service.auth.decorator import AuthService
 
 # Config
-from .....config.middleware.config import limiter
+from ......config.middleware.config import limiter
 from ...config.api import router
 
 import psutil

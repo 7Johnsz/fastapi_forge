@@ -1,10 +1,10 @@
-from fastapi import Request
+from ....service.auth.rate_limit import RateLimiter
+from fastapi import Request, Depends
+from fastapi import APIRouter
 
-# Config
-from ......config.middleware.config import limiter
-from ...config.api import router
 
-@router.get("/ping")
-@limiter.limit("30/minute")
+router = APIRouter()
+
+@router.get("/ping", dependencies=[Depends(RateLimiter(calls=20, period=60))])
 async def ping(request: Request):
     return "Pong!"

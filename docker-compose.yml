@@ -1,29 +1,92 @@
 services:
   api:
-    container_name: template-api
+    container_name: api
     build: .
+    command: uv run entrypoint.py prod
     restart: always
-    ports:
-      - ${PORT_NUMBER}:3008
-    networks:
-      - shared-network
-    depends_on:
-      - redis
+    env_file:
+      - .env
     environment:
       - REDIS_HOST=redis
-      - REDIS_PORT=6380
+      - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - DB_HOST=postgres
+      - DB_PORT=${DB_PORT}
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - backend
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      # Router HTTPS
+      - "traefik.http.routers.api.rule=Host(`${BACKEND_DOMAIN}`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.api.loadbalancer.server.port=${PORT_NUMBER}"
+      - "traefik.http.routers.api.middlewares=api-redirect-https"
+      - "traefik.http.routers.api.service=api"
+      # Router HTTP → HTTPS
+      - "traefik.http.routers.api-http.rule=Host(`${BACKEND_DOMAIN}`)"
+      - "traefik.http.routers.api-http.entrypoints=web"
+      - "traefik.http.routers.api-http.middlewares=api-redirect-https"
+      - "traefik.http.routers.api-http.service=api"
+      # Middleware Redirect HTTP to HTTPS
+      - "traefik.http.middlewares.api-redirect-https.redirectscheme.scheme=https"
 
   redis:
-    container_name: template-redis
+    container_name: redis
     image: redis:alpine
     restart: always
-    command: redis-server --requirepass ${REDIS_PASSWORD} --port 6380
+    command: redis-server --requirepass ${REDIS_PASSWORD} --port ${REDIS_PORT}
+    volumes:
+      - redis_data:/data
     ports:
-      - "${REDIS_PORT}:6380" 
+      - "${REDIS_EXTERNAL_PORT}:${REDIS_PORT}"
     networks:
-      - shared-network
-  
+      - backend
+
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_EXTERNAL_PORT}:${DB_PORT}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  migrations:
+    container_name: migrations
+    build: .
+    depends_on:
+      - postgres
+    command: uv run alembic upgrade head
+    environment:
+      - ENV=prod
+      - DB_HOST=postgres
+      - DB_PORT=${DB_PORT}
+    env_file:
+      - .env
+    networks:
+      - backend
+
 networks:
-  shared-network:
-    driver: bridge
+  backend:
+    external: true
+  web:
+    external: true
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

@@ -1,14 +1,14 @@
-from fastapi import Request
+from fastapi import Request, Depends
 
 # Services
-from ....service.auth.decorator import AuthService
+from ....service.auth.service import AuthService
+from ....service.auth.rate_limit import RateLimiter
 
-# Config
-from ......config.middleware.config import limiter
-from ...config.api import router
+from fastapi import APIRouter
 
-@router.get("/")
-@limiter.limit("30/minute")
-@AuthService
+
+router = APIRouter()
+
+@router.get("/", dependencies=[Depends(AuthService), Depends(RateLimiter(calls=20, period=60))])
 async def root(request: Request):
     return "Hello World!"

@@ -1,5 +1,6 @@
+from fastapi.security import OAuth2PasswordBearer
 from fastapi import APIRouter
 
-router = APIRouter(
-    tags=["API"]
-)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="access_token")
+
+router = APIRouter()

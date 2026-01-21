@@ -2,6 +2,8 @@ FROM python:3.13-slim
 
 RUN apt-get update && apt-get install -y \
     locales \
+    libpq-dev \
+    gcc \
     && rm -rf /var/lib/apt/lists/* \
     && sed -i '/pt_BR.UTF-8/s/^# //g' /etc/locale.gen \
     && locale-gen pt_BR.UTF-8
@@ -22,5 +24,3 @@ RUN uv sync --frozen
 COPY . .
 
 EXPOSE 8000
-
-CMD ["uv", "run", "entrypoint.py", "prod"]

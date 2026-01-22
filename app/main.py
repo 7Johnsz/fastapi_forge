@@ -1,6 +1,4 @@
-from app.api.v1.controllers.routers.reviews.submit import submit_review
 from app.api.v1.controllers.routers.user.signup import signup
-from app.api.v1.controllers.routers.decks.create import create_deck
 from fastapi.responses import ORJSONResponse
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
